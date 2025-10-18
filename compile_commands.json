@@ -1,0 +1,156 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-O3",
+      "-march=native",
+      "-flto",
+      "-ffast-math",
+      "-funroll-loops",
+      "-fomit-frame-pointer",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-c",
+      "-o",
+      "main.o",
+      "main.c"
+    ],
+    "directory": "/home/wafi/coding/RGFW",
+    "file": "/home/wafi/coding/RGFW/main.c",
+    "output": "/home/wafi/coding/RGFW/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-O3",
+      "-march=native",
+      "-flto",
+      "-ffast-math",
+      "-funroll-loops",
+      "-fomit-frame-pointer",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-c",
+      "-o",
+      "xdg-shell.o",
+      "xdg-shell.c"
+    ],
+    "directory": "/home/wafi/coding/RGFW",
+    "file": "/home/wafi/coding/RGFW/xdg-shell.c",
+    "output": "/home/wafi/coding/RGFW/xdg-shell.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-O3",
+      "-march=native",
+      "-flto",
+      "-ffast-math",
+      "-funroll-loops",
+      "-fomit-frame-pointer",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-c",
+      "-o",
+      "xdg-decoration-unstable-v1.o",
+      "xdg-decoration-unstable-v1.c"
+    ],
+    "directory": "/home/wafi/coding/RGFW",
+    "file": "/home/wafi/coding/RGFW/xdg-decoration-unstable-v1.c",
+    "output": "/home/wafi/coding/RGFW/xdg-decoration-unstable-v1.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-O3",
+      "-march=native",
+      "-flto",
+      "-ffast-math",
+      "-funroll-loops",
+      "-fomit-frame-pointer",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-c",
+      "-o",
+      "relative-pointer-unstable-v1.o",
+      "relative-pointer-unstable-v1.c"
+    ],
+    "directory": "/home/wafi/coding/RGFW",
+    "file": "/home/wafi/coding/RGFW/relative-pointer-unstable-v1.c",
+    "output": "/home/wafi/coding/RGFW/relative-pointer-unstable-v1.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-O3",
+      "-march=native",
+      "-flto",
+      "-ffast-math",
+      "-funroll-loops",
+      "-fomit-frame-pointer",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-c",
+      "-o",
+      "pointer-constraints-unstable-v1.o",
+      "pointer-constraints-unstable-v1.c"
+    ],
+    "directory": "/home/wafi/coding/RGFW",
+    "file": "/home/wafi/coding/RGFW/pointer-constraints-unstable-v1.c",
+    "output": "/home/wafi/coding/RGFW/pointer-constraints-unstable-v1.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-O3",
+      "-march=native",
+      "-flto",
+      "-ffast-math",
+      "-funroll-loops",
+      "-fomit-frame-pointer",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-c",
+      "-o",
+      "xdg-output-unstable-v1.o",
+      "xdg-output-unstable-v1.c"
+    ],
+    "directory": "/home/wafi/coding/RGFW",
+    "file": "/home/wafi/coding/RGFW/xdg-output-unstable-v1.c",
+    "output": "/home/wafi/coding/RGFW/xdg-output-unstable-v1.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-O3",
+      "-march=native",
+      "-flto",
+      "-ffast-math",
+      "-funroll-loops",
+      "-fomit-frame-pointer",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-c",
+      "-o",
+      "xdg-toplevel-icon-v1.o",
+      "xdg-toplevel-icon-v1.c"
+    ],
+    "directory": "/home/wafi/coding/RGFW",
+    "file": "/home/wafi/coding/RGFW/xdg-toplevel-icon-v1.c",
+    "output": "/home/wafi/coding/RGFW/xdg-toplevel-icon-v1.o"
+  }
+]

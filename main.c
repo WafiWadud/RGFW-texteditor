@@ -265,6 +265,7 @@ static void render_glyph(u8 *buffer, int buf_w, int buf_h, int x, int y,
 static TextBuffer *G_tb = NULL;
 static size_t *G_cx = NULL;
 static size_t *G_cy = NULL;
+static int G_win_w = 0;
 
 /* Save helper (used by the callback) */
 static void save_buffer_to_file(void) {
@@ -281,29 +282,31 @@ static void save_buffer_to_file(void) {
   tb_append_line(G_tb, "Saved to out.txt");
 }
 
+/* Calculate max columns per visual line based on window width */
+static int calc_max_cols(int win_w) {
+  int char_w = GLYPH_W * SCALE;
+  int available = win_w - 2 * MARGIN;
+  int max_cols = available / (char_w + 1);
+  return (max_cols > 0) ? max_cols : 1;
+}
+
 /* ----------------------------
    Key callback
    ---------------------------- */
-/* Signature: (window, key enum, keyChar ASCII-like, keyMod flags, repeat,
- * pressed) */
 void editor_key_callback(RGFW_window *win, RGFW_key key, u8 keyChar,
                          RGFW_keymod keyMod, RGFW_bool repeat,
                          RGFW_bool pressed) {
   RGFW_UNUSED(repeat);
   if (!pressed)
-    return; // we only handle press events (repeats have pressed==true)
+    return;
 
-  /* reliable modifier check: callback gives keyMod, but poll physical state too
-   */
   int ctrl_down = ((keyMod & RGFW_modControl) != 0);
 
-  /* Ctrl+S => save */
   if (ctrl_down && (keyChar == 's' || keyChar == 'S')) {
     save_buffer_to_file();
     return;
   }
 
-  /* Navigation / edit keys using key enum */
   switch (key) {
   case RGFW_backSpace:
     if (G_tb && G_cx && G_cy)
@@ -351,15 +354,10 @@ void editor_key_callback(RGFW_window *win, RGFW_key key, u8 keyChar,
       }
     }
     return;
-  /*case RGFW_escape:
-    RGFW_window_setShouldClose(win, RGFW_TRUE);
-    return;*/
   default:
     break;
   }
 
-  /* Printable characters (use keyChar for ASCII-like) - do not insert when Ctrl
-   * down */
   if (!ctrl_down && keyChar >= 32 && keyChar <= 126) {
     if (G_tb && G_cx && G_cy) {
       tb_insert_char(G_tb, *G_cy, *G_cx, (char)keyChar);
@@ -395,53 +393,94 @@ int main(int argc, char **argv) {
   G_tb = &tb;
   G_cx = &cx;
   G_cy = &cy;
+  G_win_w = win_w;
   RGFW_setKeyCallback(editor_key_callback);
 
   RGFW_event e;
   while (RGFW_window_shouldClose(win) == RGFW_FALSE) {
     while (RGFW_window_checkEvent(win, &e)) {
-      /* handle non-key events here (keys handled via callback) */
       if (e.type == RGFW_quit) {
         RGFW_window_close(win);
         break;
       }
-      /* keep mouse or other handlers as needed */
     }
+
+    /* Update window width for word wrap */
+    RGFW_window_getSize(win, &win_w, &win_h);
+    G_win_w = win_w;
 
     /* render */
     clear_buffer(pixels, win_w, win_h, 18, 18, 18);
     int x = MARGIN, y = MARGIN;
     int char_w = GLYPH_W * SCALE;
     int char_h = GLYPH_H * SCALE;
+    int max_cols = calc_max_cols(win_w);
+
+    /* Track which visual line we're on for cursor rendering */
+    int visual_line = 0;
+    int cursor_visual_line = -1;
+    int cursor_x = 0;
 
     for (size_t row = 0; row < tb.line_count; ++row) {
       const char *line = tb.lines[row];
-      x = MARGIN;
-      for (size_t col = 0; col < strlen(line); ++col) {
-        unsigned char ch = (unsigned char)line[col];
-        render_glyph(pixels, win_w, win_h, x, y, ch, SCALE, 230, 230, 230);
-        x += char_w + 1;
-        if (x + char_w + MARGIN > win_w)
+      size_t line_len = strlen(line);
+      size_t col = 0;
+
+      while (col < line_len || (col == 0 && line_len == 0 && row == 0)) {
+        x = MARGIN;
+        int cols_on_line = 0;
+
+        /* Render up to max_cols characters on this visual line */
+        while (col < line_len && cols_on_line < max_cols) {
+          unsigned char ch = (unsigned char)line[col];
+          render_glyph(pixels, win_w, win_h, x, y, ch, SCALE, 230, 230, 230);
+
+          /* Track cursor position */
+          if (row == cy && col == cx) {
+            cursor_visual_line = visual_line;
+            cursor_x = x;
+          }
+
+          x += char_w + 1;
+          col++;
+          cols_on_line++;
+        }
+
+        /* Handle empty line case */
+        if (line_len == 0 && row == cy && cx == 0) {
+          cursor_visual_line = visual_line;
+          cursor_x = MARGIN;
+        }
+
+        y += char_h + 2;
+        visual_line++;
+
+        if (y + char_h + MARGIN > win_h)
+          break;
+
+        /* Move to next wrapped line only if there's more content */
+        if (col >= line_len)
           break;
       }
-      /* cursor */
-      if (row == cy) {
-        int cx_pos = MARGIN + (int)cx * (char_w + 1);
-        for (int yy = y; yy < y + char_h; ++yy) {
-          for (int cc = 0; cc < 2; ++cc) {
-            int px = cx_pos + cc;
-            if (px >= 0 && px < win_w && yy >= 0 && yy < win_h) {
-              int idx = (yy * win_w + px) * 3;
-              pixels[idx + 0] = 255;
-              pixels[idx + 1] = 200;
-              pixels[idx + 2] = 60;
-            }
+
+      if (y + char_h + MARGIN > win_h)
+        break;
+    }
+
+    /* Draw cursor */
+    if (cursor_visual_line >= 0) {
+      int cursor_y = MARGIN + cursor_visual_line * (char_h + 2);
+      for (int yy = cursor_y; yy < cursor_y + char_h; ++yy) {
+        for (int cc = 0; cc < 2; ++cc) {
+          int px = cursor_x + cc;
+          if (px >= 0 && px < win_w && yy >= 0 && yy < win_h) {
+            int idx = (yy * win_w + px) * 3;
+            pixels[idx + 0] = 255;
+            pixels[idx + 1] = 200;
+            pixels[idx + 2] = 60;
           }
         }
       }
-      y += char_h + 2;
-      if (y + char_h + MARGIN > win_h)
-        break;
     }
 
     RGFW_window_blitSurface(win, surface);
