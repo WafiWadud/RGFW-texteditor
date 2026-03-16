@@ -296,7 +296,6 @@ static int calc_max_cols(int win_w) {
 void editor_key_callback(RGFW_window *win, RGFW_key key, u8 keyChar,
                          RGFW_keymod keyMod, RGFW_bool repeat,
                          RGFW_bool pressed) {
-  RGFW_UNUSED(repeat);
   if (!pressed)
     return;
 
