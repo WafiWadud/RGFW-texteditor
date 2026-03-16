@@ -279,7 +279,7 @@ static void save_buffer_to_file(void) {
     fputc('\n', f);
   }
   fclose(f);
-  tb_append_line(G_tb, "Saved to out.txt");
+  /* Don't append to buffer - causes memory issues on exit */
 }
 
 /* Calculate max columns per visual line based on window width */
