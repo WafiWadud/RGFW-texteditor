@@ -266,12 +266,13 @@ static TextBuffer *G_tb = NULL;
 static size_t *G_cx = NULL;
 static size_t *G_cy = NULL;
 static int G_win_w = 0;
+static const char *G_filename = "out.txt";
 
 /* Save helper (used by the callback) */
 static void save_buffer_to_file(void) {
   if (!G_tb)
     return;
-  FILE *f = fopen("out.txt", "w");
+  FILE *f = fopen(G_filename, "w");
   if (!f)
     return;
   for (size_t i = 0; i < G_tb->line_count; ++i) {
@@ -370,8 +371,7 @@ void editor_key_callback(RGFW_window *win, RGFW_key key, u8 keyChar,
    main()
    ---------------------------- */
 int main(int argc, char **argv) {
-  (void)argc;
-  (void)argv;
+  G_filename = (argc > 1) ? argv[1] : "out.txt";
 
   RGFW_window *win = RGFW_createWindow("RGFW Text Editor (8x8 font)", 100, 100,
                                        1280, 720, (u64)0);
@@ -388,6 +388,27 @@ int main(int argc, char **argv) {
   TextBuffer tb;
   tb_init(&tb);
   size_t cx = 0, cy = 0; // cursor (col, row)
+
+  /* Load file into buffer */
+  {
+    FILE *f = fopen(G_filename, "r");
+    if (f) {
+      char line_buf[4096];
+      while (fgets(line_buf, sizeof(line_buf), f)) {
+        size_t len = strlen(line_buf);
+        /* Strip trailing newline */
+        if (len > 0 && line_buf[len - 1] == '\n') {
+          line_buf[len - 1] = '\0';
+          len--;
+        }
+        tb_append_line(&tb, line_buf);
+      }
+      fclose(f);
+    }
+    /* If file didn't exist or was empty, start with one blank line */
+    if (tb.line_count == 0)
+      tb_append_line(&tb, "");
+  }
 
   /* register globals and callback */
   G_tb = &tb;
