@@ -296,7 +296,8 @@ static int calc_max_cols(int win_w) {
 void editor_key_callback(RGFW_window *win, RGFW_key key, u8 keyChar,
                          RGFW_keymod keyMod, RGFW_bool repeat,
                          RGFW_bool pressed) {
-  if (!pressed)
+  (void)win;
+  if (!pressed && !repeat)
     return;
 
   int ctrl_down = ((keyMod & RGFW_modControl) != 0);
@@ -399,7 +400,6 @@ int main(int argc, char **argv) {
   while (RGFW_window_shouldClose(win) == RGFW_FALSE) {
     while (RGFW_window_checkEvent(win, &e)) {
       if (e.type == RGFW_quit) {
-        RGFW_window_close(win);
         break;
       }
     }
